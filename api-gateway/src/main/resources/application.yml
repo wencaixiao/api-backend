@@ -1,0 +1,82 @@
+server:
+  port: 8090 #项目的启动端口
+
+#spring cloud gateway的详细配置见：https://docs.spring.io/spring-cloud-gateway/docs/3.1.4/reference/html/
+#断言：https://docs.spring.io/spring-cloud-gateway/docs/3.1.4/reference/html/#gateway-request-predicates-factories
+# 1.After在xx时间之后。2.Before在xx时间之前。3.Between在xx时间之间。4.请求类别。5.请求头(包含cookie)
+# 6.查询参数。7.客户端地址。8.权重断言(可以做发布控制的作用)
+#这里使用的是spring cloud gateway的配置式
+spring:
+  cloud:
+    gateway:
+      #这里应用了网关的声明式配置实现了转发，网关的编程式配置实现了全局请求拦截
+      default-filters:
+        - AddResponseHeader=source, xiaowc
+      routes:
+        - id: api_route
+          uri: http://localhost:8123 #实际转发的地址
+          predicates: #如果路径是以locahost:8090/api/开头的，就访问上面这个地址localhost:8123，相当于转发的作用
+            - Path=/api/**
+
+
+#        #1.可以配置路由断言：https://docs.spring.io/spring-cloud-gateway/docs/3.1.4/reference/html/#gateway-request-predicates-factories
+#        #        - id: after_route
+#        #          uri: https://baidu.com
+#        #          predicates:  #项目启动后，在下面配置的时间之后访问上面这个uri地址，这里可以加多个规则
+#        #            - After=2017-01-20T17:42:47.789-07:00[America/Denver]
+#        #        - id: before_route
+#        #          uri: https://ai.taobao.com
+#        #          predicates:  #项目启动后，在下面配置的时间之前访问上面这个uri地址，这里可以加多个规则
+#        #            - Before=2023-01-20T17:42:47.789-07:00[America/Denver]
+#        #        - id: path_route1
+#        #          uri: https://ai.taobao.com
+#        #          predicates: #如果路径是以/api开头的，就访问上面这个地址
+#        #            - Path=/api/**
+#        #        - id: path_route2
+#        #          uri: https://baidu.com
+#        #          predicates: #如果路径是以/baidu开头的，就访问上面这个地址
+#        #            - Path=/baidu/**
+#        #2.可以配置网关过滤器：基本功能就是对请求头、请求参数、响应头的增删改查
+#        # https://docs.spring.io/spring-cloud-gateway/docs/3.1.4/reference/html/#gatewayfilter-factories
+#        - id: add_request_header_route
+#          uri: http://localhost:8123
+#          predicates: #如果路径是以locahost:8090/api/开头的，就访问上面这个地址localhost:8123，相当于转发的作用
+#            - Path=/api/**
+#          filters:
+#            #请求染色：开发的时候，服务器可能是一层调用一层，如果要经过很多层，就可以一层一层加上各自的请求头来进行标识，有点像计算机网络的封包拆包
+#            # https://docs.spring.io/spring-cloud-gateway/docs/3.1.4/reference/html/#gatewayfilter-factories
+#            - AddRequestHeader=xiaowc, swag #给请求添加请求头(其实就是请求染色)，前面是请求头的key，后面是请求头的value
+#            - AddRequestParameter=name, cat #给请求添加请求参数，前面是要传入的key，后面是传入的value
+#            #服务熔断降级：一个服务访问不通就去访问另外一个地址
+#            # https://docs.spring.io/spring-cloud-gateway/docs/3.1.4/reference/html/#spring-cloud-circuitbreaker-filter-factory
+#            - name: CircuitBreaker #用的过滤器是哪种类型的
+#              args:
+#                name: myCircuitBreaker
+#                fallbackUri: forward:/fallback #如果上面的地址访问不通的话，就会降级到这个地址，下面又会对这个地址进行转发
+#        - id: xiaowc-fallback
+#          uri: https://www.baidu.com
+#          predicates: #如果路径是以/fallback开头的，就访问上面这个地址
+#            - Path=/fallback
+
+        # 限流：https://docs.spring.io/spring-cloud-gateway/docs/3.1.4/reference/html/#the-requestratelimiter-gatewayfilter-factory
+
+
+#上面这样有个问题，就是如果输入了地址之后，不知道应用到了哪个规则，所以我们这里控制日志级别设置为最低，任何日志都可以输出
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: trace
+
+# 这段配置仅供测试，实际应该根据登录用户获取对应的 ak、sk
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848
+

@@ -1,0 +1,11 @@
+server:
+  port: 8123 #项目启动端口
+  servlet:
+    context-path: /api #全局路径
+
+#这是我们自己定义的sdk，这些属性是我们在那个sdk中的ApiClientConfig自动配置类中定义的
+api:
+  client:
+    #填写的是开发者的账户、密码，只需要在要用的地方引入ApiClient就可以了，而不需要关心具体的API签名认证信息了
+    access-key: xiaowc
+    secret-key: 12345678
