@@ -11,7 +11,7 @@ spring:
     gateway:
       #这里应用了网关的声明式配置实现了转发，网关的编程式配置实现了全局请求拦截
       default-filters:
-        - AddResponseHeader=source, xiaowc
+        - AddResponseHeader=source, xiaowc  #全局染色，下面那些只是对某个路径进行染色
       routes:
         - id: api_route
           uri: http://localhost:8123 #实际转发的地址

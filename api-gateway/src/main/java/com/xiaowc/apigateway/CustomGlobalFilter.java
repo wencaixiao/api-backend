@@ -106,12 +106,12 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String sourceAddress = request.getLocalAddress().getHostString();
         log.info("请求来源地址：" + sourceAddress);
         log.info("请求来源地址：" + request.getRemoteAddress());
-        ServerHttpResponse response = exchange.getResponse(); // 拿到response响应体
+        ServerHttpResponse response = exchange.getResponse(); // 拿到response响应体，可以控制响应
         // 3.访问控制 -> 黑白名单
         // 如果不在名单内，就访问拒绝，直接返回一个状态码然后拦截掉
         if (!IP_WHITE_LIST.contains(sourceAddress)) {
-            response.setStatusCode(HttpStatus.FORBIDDEN);
-            return response.setComplete(); // 表示这个请求完成了
+            response.setStatusCode(HttpStatus.FORBIDDEN); //设置一个禁止访问的状态码
+            return response.setComplete(); // 表示这个响应完成了
         }
         // 4.用户鉴权(判断accessKey和secretKey是否合法)
         HttpHeaders headers = request.getHeaders();
@@ -125,6 +125,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         // TODO: 2023/1/16 实际情况应该是去数据库中查是否已分配给用户
         User invokeUser = null;
         try {
+            // 因为这个网关项目没有引入mybatis，所以这里用了Dubbo远程调用的方法去调用远程backend增删改查项目提供的接口
             invokeUser = innerUserService.getInvokeUser(accessKey); // 根据用户的accessKey获取用户信息
         } catch (Exception e) {
             log.error("getInvokeUser error", e);
@@ -132,7 +133,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         if (invokeUser == null) { // 说明没有这个用户
             return handleNoAuth(response);
         }
-//        if (!"xiaowc".equals(accessKey)) {
+//        if (!"xiaowc".equals(accessKey)) { // 实际情况要从数据库中去查
 //            return handleNoAuth(response);
 //        }
         if (Long.parseLong(nonce) > 10000L) {
@@ -153,6 +154,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         // 4. 请求的模拟接口是否存在，以及请求方法是否匹配
         InterfaceInfo interfaceInfo = null;
         try {
+            // 因为这个网关项目没有引入mybatis，所以这里用了Dubbo远程调用的方法去调用远程backend增删改查项目提供的接口
             interfaceInfo = innerInterfaceInfoService.getInterfaceInfo(path, method); // 根据请求路径和请求方法获取接口的信息
         } catch (Exception e) {
             log.error("getInterfaceInfo error", e);
@@ -174,12 +176,13 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
          *
          * 解决方案：利用response装饰者，增强原有response的处理能力，就是下面定义的handleResponse()方法
          */
-//        Mono<Void> filter = chain.filter(exchange); // 发现上面的问题
+//        Mono<Void> filter = chain.filter(exchange); // 调用责任链方法chain.filter()，会发现上面的问题
         // TODO: 2023/1/23 是否还有调用次数，一定要放在发送请求前
         return handleResponse(exchange, chain, interfaceInfo.getId(), invokeUser.getId());
     }
 
     /**
+     * 装饰者设计模式：利用response装饰者，增强原有response的处理能力
      * 自定义处理的装饰器：给response对象做了增强
      *  处理响应：
      * DEBUG之后发现问题：预期是等模拟接口调用完成，才记录响应日志、统计调用次数。但现实是chain.filter方法立刻返回了，直到filter过滤器return之后才调用了模拟接口
@@ -190,13 +193,13 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
      */
     public Mono<Void> handleResponse(ServerWebExchange exchange, GatewayFilterChain chain, long interfaceInfoId, long userId) {
         try {
-            ServerHttpResponse originalResponse = exchange.getResponse();
+            ServerHttpResponse originalResponse = exchange.getResponse(); // 拿到request请求体，再通过request去拿到相应的信息
             // 缓存数据的工厂
             DataBufferFactory bufferFactory = originalResponse.bufferFactory();
             // 拿到响应码
             HttpStatus statusCode = originalResponse.getStatusCode();
             if (statusCode == HttpStatus.OK) {
-                // 装饰后的response对象，增强能力，下面的函数说明如何增强能力
+                // 装饰后的response对象，增强能力，下面重写的函数说明了如何增强能力
                 ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(originalResponse) {
                     /**
                      * 当我们调用完接口之后，等他返回了结果之后，就会调用这个writeWith()方法，我们就可以根据这个响应结果做一些自己的处理逻辑
@@ -236,7 +239,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                                     }));
                         } else {
                             // 9.调用失败，返回一个规范的错误码
-
                             log.error("<--- {} 响应code异常", getStatusCode());
                         }
                         return super.writeWith(body); // 最后直接返回body

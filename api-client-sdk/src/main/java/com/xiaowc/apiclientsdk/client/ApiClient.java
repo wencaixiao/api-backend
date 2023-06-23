@@ -86,7 +86,7 @@ public class ApiClient {
         // 可以单独传入http参数，这样参数会自动做URL编码，拼接在URL中
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("name", name);
-        String result = HttpUtil.get(GATEWAY_HOST + "/api/name/", paramMap); // GET请求
+        String result = HttpUtil.get(GATEWAY_HOST + "/api/name/get", paramMap); // GET请求
         System.out.println(result);
         return result;
     }
@@ -99,7 +99,7 @@ public class ApiClient {
         // 可以单独传入http参数，这样参数会自动做URL编码，拼接在URL中
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("name", name);
-        String result = HttpUtil.post(GATEWAY_HOST + "/api/name/", paramMap); // POST请求
+        String result = HttpUtil.post(GATEWAY_HOST + "/api/name/post", paramMap); // POST请求
         System.out.println(result);
         return result;
     }

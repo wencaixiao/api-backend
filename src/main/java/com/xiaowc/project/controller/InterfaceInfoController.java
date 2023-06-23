@@ -215,7 +215,7 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         long id = idRequest.getId();
-        // 判断是否存在
+        // 判断该接口是否存在
         InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
@@ -253,7 +253,7 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         long id = idRequest.getId();
-        // 判断是否存在
+        // 判断该接口是否存在
         InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
@@ -287,7 +287,7 @@ public class InterfaceInfoController {
         }
         long id = interfaceInfoInvokeRequest.getId(); // 得到接口的id
         String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams(); // 得到前端用户传过来的接口参数
-        // 判断是否存在，从数据库中去查询当前接口是否存在
+        // 判断接口是否存在，从数据库中去查询当前接口是否存在
         InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);

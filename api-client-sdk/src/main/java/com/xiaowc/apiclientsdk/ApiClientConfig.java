@@ -19,17 +19,19 @@ import org.springframework.context.annotation.Configuration;
 public class ApiClientConfig {
 
     /**
-     * 用户的标识
+     * 用户的标识，读取引用该sdk的其他模块的application.yml配置文件中定义的accessKey
      */
     private String accessKey;
 
     /**
-     * 用户的密钥
+     * 用户的密钥，读取引用该sdk的其他模块的application.yml配置文件中定义的secretKey
      */
     private String secretKey;
 
     /**
-     * 手动将ApiClient交给spring去管理
+     * 创建一个客户端：这样其他模块引入了这个sdk之后，就可以直接使用这个ApiClient对象了，
+     *  其他模块不用关心这个sdk内部的实现就可以直接进行使用
+     *  手动将ApiClient交给spring去管理，这里new ApiClient()是读取引用该sdk的其他模块的application.yml的配置去创建一个客户端
      * @return
      */
     @Bean
