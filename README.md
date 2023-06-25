@@ -6,3 +6,11 @@
 3. 为解决开发者调用成本过高的问题(须自己使用http+封装签名去调用接口)，基于Spring Boot Starter开发了客户端SDK，一行代码即可调用接口，提升开发体验。
 4. 选用Spring Cloud Gateway作为API网关，实现了路由转发、访问控制、流量染色，并集中处理签名校验、请求参数校验、接口调用统计等业务逻辑，提高安全性的同时，便于系统开发维护。
 5. 为解决多个子系统内代码大量重复的问题，抽象模型层和业务层代码为公共模块，并使用Dubbo RPC框架实现子系统间的高性能接口调用，大量减少重复代码。
+
+流程：
+1.先分别对api-client-sdk，api-common进行install打包
+2.先在本地运行nacos服务器：startup.cmd -m standalone
+3.运行api-interface项目
+4.运行api-backend项目
+5.运行api-gateway项目
+6.运行前端api-frontend项目即可访问
