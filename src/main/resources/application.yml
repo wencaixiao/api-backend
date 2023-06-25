@@ -5,9 +5,9 @@ spring:
   #数据库的配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: xxxxxx
+    url: jdbc:mysql://localhost:3307/xiaowc_api
     username: root
-    password: xxxxxx
+    password: 123456
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER  #如果springboot版本大于2.6，需要修改默认路径匹配策略
