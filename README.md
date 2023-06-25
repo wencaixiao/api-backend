@@ -8,9 +8,9 @@
 5. 为解决多个子系统内代码大量重复的问题，抽象模型层和业务层代码为公共模块，并使用Dubbo RPC框架实现子系统间的高性能接口调用，大量减少重复代码。
 
 流程：
-1.先分别对api-client-sdk，api-common进行install打包
-2.先在本地运行nacos服务器：startup.cmd -m standalone
-3.运行api-interface项目
-4.运行api-backend项目
-5.运行api-gateway项目
-6.运行前端api-frontend项目即可访问
+1. 先分别对api-client-sdk，api-common进行install打包
+2. 先在本地运行nacos服务器：startup.cmd -m standalone
+3. 运行api-interface项目
+4. 运行api-backend项目
+5. 运行api-gateway项目
+6. 运行前端api-frontend项目即可访问
